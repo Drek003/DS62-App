@@ -16,21 +16,63 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tuapp.adapter.CatalogoAdapter
-import com.example.catalogo.Producto
+import com.tuapp.adapter.CategoriaAdapter
 
 class MainActivity : AppCompatActivity() {
+    private var mostrandoCategorias = true
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var categorias: List<Categoria>
+    private lateinit var productosPorCategoria: Map<Int, List<Producto>>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.catalogo) // Usa tu layout XML
+        setContentView(R.layout.catalogo)
 
-        val productos = listOf(
-            Producto("Producto 1", "$10.00", R.drawable.ic_launcher_foreground),
-            Producto("Producto 2", "$20.00", R.drawable.ic_launcher_foreground),
-            Producto("Producto 3", "$30.00", R.drawable.ic_launcher_foreground)
+        // Ejemplo de categorías
+        categorias = listOf(
+            Categoria(1, "Electrónica", R.drawable.ic_launcher_foreground),
+            Categoria(2, "Ropa", R.drawable.ic_launcher_foreground),
+            Categoria(3, "Hogar", R.drawable.ic_launcher_foreground)
+        )
+        // Ejemplo de productos por categoría
+        productosPorCategoria = mapOf(
+            1 to listOf(
+                Producto("Celular", "$200.00", R.drawable.ic_launcher_foreground),
+                Producto("Laptop", "$800.00", R.drawable.ic_launcher_foreground)
+            ),
+            2 to listOf(
+                Producto("Camiseta", "$15.00", R.drawable.ic_launcher_foreground),
+                Producto("Pantalón", "$25.00", R.drawable.ic_launcher_foreground)
+            ),
+            3 to listOf(
+                Producto("Silla", "$40.00", R.drawable.ic_launcher_foreground),
+                Producto("Mesa", "$60.00", R.drawable.ic_launcher_foreground)
+            )
         )
 
-        val recyclerView = findViewById<RecyclerView>(R.id.rvCatalogo)
+        recyclerView = findViewById(R.id.rvCatalogo)
         recyclerView.layoutManager = LinearLayoutManager(this)
+        mostrarCategorias()
+    }
+
+    private fun mostrarCategorias() {
+        mostrandoCategorias = true
+        recyclerView.adapter = CategoriaAdapter(categorias) { categoria ->
+            mostrarProductosDeCategoria(categoria.id)
+        }
+    }
+
+    private fun mostrarProductosDeCategoria(categoriaId: Int) {
+        mostrandoCategorias = false
+        val productos = productosPorCategoria[categoriaId] ?: emptyList()
         recyclerView.adapter = CatalogoAdapter(productos)
+    }
+
+    override fun onBackPressed() {
+        if (!mostrandoCategorias) {
+            mostrarCategorias()
+        } else {
+            super.onBackPressed()
+        }
     }
 }
